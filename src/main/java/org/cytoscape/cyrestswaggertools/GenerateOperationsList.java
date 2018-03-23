@@ -13,7 +13,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class GenerateOperationsList {
 	public static void main(String[] args) throws FileNotFoundException {
-		readFile("./src/main/resources/cyrest_functions_swagger.json");
+		System.out.println("\nFunctions\n");
+		readFile("./src/main/resources/cy_rest_functions_swagger.json");
+		System.out.println("\nCommands\n");
+		readFile("./src/main/resources/cy_rest_commands_swagger.json");
 	}
 	
 	private static void readFile(String fileName) throws FileNotFoundException {
@@ -24,8 +27,15 @@ public class GenerateOperationsList {
 		JsonNode root;
 		try {
 			root = mapper.readTree(new BufferedReader(fileReader));
-			JsonNode firstNode = root.get(0);
-			System.out.println(root.toString());
+			JsonNode paths = root.get("paths");
+			
+			for (String path : (Iterable<String>)() -> paths.fieldNames()) {
+				JsonNode pathNode = paths.get(path);
+				for (String method : (Iterable<String>)() -> pathNode.fieldNames()) {
+					JsonNode methodNode = pathNode.get(method);
+					System.out.println(method.toUpperCase() + "\t" +  path + "\t" + methodNode.get("summary").asText());
+				}
+			}
 		} catch (JsonProcessingException e) {
 			
 			e.printStackTrace();
